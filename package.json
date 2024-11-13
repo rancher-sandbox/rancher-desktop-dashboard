@@ -10,7 +10,7 @@
     "color": "4.2.3",
     "ip": "2.0.1",
     "node-polyfill-webpack-plugin": "^3.0.0",
-    "@rancher/shell": "2.0.2"
+    "@rancher/shell": "3.0.0"
   },
   "resolutions": {
     "@types/node": "~20.10.0",
