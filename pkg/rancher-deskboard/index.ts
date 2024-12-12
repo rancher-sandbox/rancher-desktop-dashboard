@@ -1,14 +1,37 @@
 import { importTypes } from '@rancher/auto-import';
-import { IPlugin } from '@shell/core/types';
+import { IInternal, IPlugin } from '@shell/core/types';
 
 // Init the package
-export default function(plugin: IPlugin): void {
+export default function(plugin: IPlugin, internal: IInternal): void {
   // Auto-import model, detail, edit from the folders
   importTypes(plugin);
 
   // Provide plugin metadata from package.json
   plugin.metadata = require('./package.json');
 
-  // Load a product
-  // plugin.addProduct(require('./product'));
+  const { $axios, store, app: { router } } = internal;
+
+  interceptApiRequest($axios);
 }
+
+/**
+ * Intercepts requests to rewrite URLs. This is useful intercepting any direct
+ * API calls when running dashboard with a proxy server.
+ *
+ * NOTE: This is currently used for running Dashboard in Rancher Desktop.
+ * @param {*} axios The axios instance to modify
+ */
+const interceptApiRequest = (axios: any) => {
+
+  axios.interceptors.request.use((config: any) => {
+    if (config.url.includes(':9443')) {
+      config.url = config.url
+        .replace('https://', 'http://')
+        .replace(':9443', ':6120');
+    }
+
+    return config;
+  }, (error: any) => {
+    return Promise.reject(error);
+  });
+};
