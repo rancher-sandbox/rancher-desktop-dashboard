@@ -12,6 +12,17 @@ export default function(plugin: IPlugin, internal: IInternal): void {
   const { $axios, store, app: { router } } = internal;
 
   interceptApiRequest($axios);
+
+  let logoRoute = router.resolve({ 
+    name: 'c-cluster-explorer',
+    params: { cluster: "local" },
+  });
+
+  store.commit('setIsSingleProduct', {
+    productNameKey: 'rancher-desktop.label',
+    logoRoute,
+    logo: require(`./assets/logo.svg`),
+  });
 }
 
 /**
