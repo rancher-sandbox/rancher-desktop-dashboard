@@ -1,16 +1,16 @@
 {
   "name": "rancher-deskboard",
-  "version": "0.1.0",
+  "version": "0.1.1-alpha.0",
   "private": false,
   "engines": {
     "node": ">=16"
   },
   "dependencies": {
+    "@rancher/shell": "3.0.0",
     "cache-loader": "^4.1.0",
     "color": "4.2.3",
     "ip": "2.0.1",
-    "node-polyfill-webpack-plugin": "^3.0.0",
-    "@rancher/shell": "3.0.0"
+    "node-polyfill-webpack-plugin": "^3.0.0"
   },
   "resolutions": {
     "@types/node": "~20.10.0",

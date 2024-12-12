@@ -53,6 +53,6 @@ jobs:
       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
     - name: Upload Release Assets
       env:
-        GITHUB_TOKEN: ${{ secrets.PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         gh release upload ${{ env.RELEASE_VERSION }} build/${{ env.ARTIFACT_NAME }}.tar.gz build/${{ env.ARTIFACT_NAME }}.tar.gz.sha512sum
