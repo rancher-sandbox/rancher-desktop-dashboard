@@ -13,7 +13,7 @@ export default function(plugin: IPlugin, internal: IInternal): void {
 
   interceptApiRequest($axios);
 
-  let logoRoute = router.resolve({ 
+  let logoRoute = router.resolve({
     name: 'c-cluster-explorer',
     params: { cluster: "local" },
   });
@@ -35,6 +35,12 @@ export default function(plugin: IPlugin, internal: IInternal): void {
 const interceptApiRequest = (axios: any) => {
 
   axios.interceptors.request.use((config: any) => {
+    // ensure that http traffic to properly route to the proxy server
+    if (config.url.includes(':6120')) {
+      config.url = config.url
+        .replace('https://', 'http://')
+    }
+
     if (config.url.includes(':9443')) {
       config.url = config.url
         .replace('https://', 'http://')
