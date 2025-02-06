@@ -1,6 +1,6 @@
 {
   "name": "rancher-deskboard",
-  "version": "0.1.1",
+  "version": "2.11.0.rd1",
   "private": false,
   "engines": {
     "node": ">=20"
