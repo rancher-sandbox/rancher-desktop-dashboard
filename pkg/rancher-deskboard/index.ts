@@ -35,6 +35,12 @@ export default function(plugin: IPlugin, internal: IInternal): void {
 const interceptApiRequest = (axios: any) => {
 
   axios.interceptors.request.use((config: any) => {
+    // ensure that web socket traffic properly routes to API server
+    if (config.url.includes(':6120') && config.url.includes('wss')) {
+      config.url = config.url
+        .replace(':6120', ':9443');
+    }
+
     // ensure that http traffic to properly route to the proxy server
     if (config.url.includes(':6120') && config.url.includes('https')) {
       config.url = config.url
