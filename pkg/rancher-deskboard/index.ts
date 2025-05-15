@@ -36,12 +36,12 @@ const interceptApiRequest = (axios: any) => {
 
   axios.interceptors.request.use((config: any) => {
     // ensure that http traffic to properly route to the proxy server
-    if (config.url.includes(':6120')) {
+    if (config.url.includes(':6120') && config.url.includes('https')) {
       config.url = config.url
         .replace('https://', 'http://')
     }
 
-    if (config.url.includes(':9443')) {
+    if (config.url.includes(':9443') && config.url.includes('https')) {
       config.url = config.url
         .replace('https://', 'http://')
         .replace(':9443', ':6120');
