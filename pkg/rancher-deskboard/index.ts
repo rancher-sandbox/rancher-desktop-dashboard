@@ -25,6 +25,16 @@ export default function(plugin: IPlugin, internal: IInternal): void {
     logoRoute,
     logo: require(`./assets/logo.svg`),
   });
+
+  // Hide buttons in the header that don't work in Rancher Desktop.
+  // KubeConfig buttons don't function (issues #2208) and Kubectl Shell
+  // is not useful since users can use a local terminal (issue #8151).
+  store.commit('type-map/product', {
+    name:           'explorer',
+    hideKubeShell:  true,
+    hideKubeConfig: true,
+    hideCopyConfig: true,
+  });
 }
 
 /**
