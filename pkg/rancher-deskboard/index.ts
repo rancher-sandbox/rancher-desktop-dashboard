@@ -2,6 +2,14 @@ import { importTypes } from '@rancher/auto-import';
 import { IInternal, IPlugin } from '@shell/core/types';
 import Socket from '@shell/utils/socket';
 
+// Steve's HTTPS port, fetched asynchronously from the DashboardServer
+// at plugin init. The interceptors below are registered synchronously
+// but read stevePort at request time (inside the interceptor callbacks),
+// so the async fetch completes before the dashboard UI renders and
+// starts making API calls. If the fetch fails, stevePort stays empty
+// and the interceptors pass URLs through unmodified.
+let stevePort = '';
+
 // Init the package
 export default function(plugin: IPlugin, internal: IInternal): void {
   // Auto-import model, detail, edit from the folders
@@ -12,6 +20,10 @@ export default function(plugin: IPlugin, internal: IInternal): void {
 
   const { $axios, store, app: { router } } = internal;
 
+  // Fire-and-forget: the result is stored in the module-level stevePort
+  // variable before any intercepted request runs. Not awaited because
+  // the plugin init function is synchronous.
+  fetchStevePort($axios);
   interceptApiRequest($axios);
   interceptWebSocketUrls();
 
@@ -38,6 +50,20 @@ export default function(plugin: IPlugin, internal: IInternal): void {
 }
 
 /**
+ * Fetch the Steve HTTPS port from the DashboardServer. The port is
+ * dynamic to avoid conflicts with other software on the default ports.
+ */
+const fetchStevePort = async(axios: any) => {
+  try {
+    const { data } = await axios.get('/api/steve-port');
+
+    stevePort = `:${ data.port }`;
+  } catch (error) {
+    console.error('Failed to fetch Steve port:', error);
+  }
+};
+
+/**
  * Intercepts requests to rewrite URLs. This is useful intercepting any direct
  * API calls when running dashboard with a proxy server.
  *
@@ -52,10 +78,10 @@ const interceptApiRequest = (axios: any) => {
         .replace('https://', 'http://');
     }
 
-    if (config.url.includes(':9443')) {
+    if (stevePort && config.url.includes(stevePort)) {
       config.url = config.url
         .replace('https://', 'http://')
-        .replace(':9443', ':6120');
+        .replace(stevePort, ':6120');
     }
 
     return config;
@@ -68,8 +94,8 @@ const interceptApiRequest = (axios: any) => {
  * Intercepts WebSocket URL construction to rewrite URLs for the proxy server.
  *
  * The dashboard runs on http://127.0.0.1:6120 (HTTP proxy) which proxies to
- * https://127.0.0.1:9443 (Kubernetes API with TLS). WebSocket connections for
- * pod logs/shell need to use ws:// (not wss://) when going through the proxy.
+ * Steve's HTTPS port. WebSocket connections for pod logs/shell need to use
+ * ws:// (not wss://) when going through the proxy.
  *
  * This fixes issue #3212 where newly created pods fail to show logs because
  * their WebSocket URLs use wss:// on the HTTP proxy port.
@@ -93,11 +119,11 @@ const interceptWebSocketUrls = () => {
     }
 
     // Route direct API connections through the proxy
-    // Convert wss://127.0.0.1:9443 → ws://127.0.0.1:6120
-    if (this.url.includes(':9443')) {
+    // Convert wss://127.0.0.1:{stevePort} → ws://127.0.0.1:6120
+    if (stevePort && this.url.includes(stevePort)) {
       this.url = this.url
         .replace('wss://', 'ws://')
-        .replace(':9443', ':6120');
+        .replace(stevePort, ':6120');
     }
   };
 };
