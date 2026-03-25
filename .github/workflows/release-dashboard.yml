@@ -16,12 +16,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
       with:
         fetch-depth: 0
         persist-credentials: false
 
-    - uses: actions/setup-node@v2
+    - uses: actions/setup-node@7c12f8017d5436eb855f1ed4399f037a36fbd9e8 # v2
       with:
         node-version: '20.x'
 
@@ -30,7 +30,7 @@ jobs:
         RANCHER_ENV=desktop ./.github/workflows/scripts/build-dashboard.sh
 
     - name: Upload Build
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         path: ${{ env.RELEASE_DIR}}/${{ env.ARTIFACT_NAME }}*
         name: ${{ env.ARTIFACT_NAME }}
@@ -40,12 +40,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
       with:
         fetch-depth: 1
         persist-credentials: false
     - name: Download build
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
       with:
         name: ${{ env.ARTIFACT_NAME }}
         path: build
